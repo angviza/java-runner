@@ -37,8 +37,6 @@ else
    ENV="$DIR/.env"
 fi
 
-printd "load run config from　 　: \033[1;33m $ENV "
-printd "work dir　 　 　 　 　 　: \033[1;33m $DIR "
 xenv
 APP_BIN=${APP_BIN:-bin}
 APP_BIN="$DIR/$APP_BIN"
@@ -64,13 +62,25 @@ run() {
    sleep ${STARTINTWAIT:-10s}
 }
 
+info() {
+   DATE=$(date +%Y-%m-%d" "%H:%M:%S%z\(%Z\))
+   printd "\n┌───────────────────────────────────────────────────┐\n"
+   printd " ♨ [java-runner]: https://github.com/angviza/        ♨\n"
+   printd "LOAD CONFIG 　: \033[1;33m $ENV"
+   printd "APP_HOME 　 　: \033[1;33m $DIR"
+   printd "MAINCLASS 　　: \033[1;33m $APP_MAINCLASS"
+   printd "JAVA_HOME 　　: \033[1;33m $JAVA_HOME"
+   printd "$(uname -a)"
+   printd "\n└───────────$DATE───────────┘\n\n"
+}
+info
 checkpid() {
    javaps=$(ps -ef | grep -F "$CLASSPATH" | grep -v grep | awk '{print $2}')
    psid=${javaps:-0}
    if [ $psid -ne 0 ]; then
       printc "\033[1;36m✔\033[0m $APP_MAINCLASS is running! (pid=$psid)"
    else
-      printc "\033[1;31m✘\033[0m $APP_MAINCLASS is \033[1;31;36mnot running ☠ "
+      printc "\033[1;31m✘\033[0m $APP_MAINCLASS is \033[1;31;36mnot running"
    fi
    printc "\033[8;31m$psid"
 }
@@ -112,23 +122,13 @@ stop() {
    fi
 }
 backup() {
-   printc "\033[5;36m Backup $APP_BIN ➜ $APP_BACKUP_DIR"
+   printc "\033[5;36m [Backuping]:\033[0m $APP_BIN \033[1;31m➜\033[0m $APP_BACKUP_DIR"
    mkdir -p ${APP_BACKUP_DIR}
    tar -cv $APP_BIN | gzip >${APP_BACKUP_DIR}/$(date +%Y-%m-%d"_"%H_%M_%S).tar.gz
    find ${APP_BACKUP_DIR} -mtime +${APP_BACKUP_DAY:-3} -name "*.sql.gz" -exec rm -f {} \;
-   printc "\033[1;36m Backup [Sucess]"
+   printc "\033[1;36m [Backuped]\033[0m [Sucess]"
 }
-info() {
-   printc "\033[1;31;42m" "System Information:"
-   printc "\033[1;36m****************************"
-   printc "$(head -n 1 /etc/issue)"
-   printc "$(uname -a)"
-   printc "JAVA_HOME=$JAVA_HOME"
-   printc "$($JAVA_HOME/bin/java -version)"
-   printc "APP_HOME=$DIR"
-   printc "APP_MAINCLASS=\033[5;31;46m$APP_MAINCLASS"
-   printc "\033[1;36m****************************"
-}
+
 status() {
    checkpid
 }
