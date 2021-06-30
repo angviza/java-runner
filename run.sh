@@ -73,7 +73,7 @@ info() {
    printd "$(uname -a)"
    printd "\n└───────────$DATE───────────┘\n\n"
 }
-info
+
 checkpid() {
    javaps=$(ps -ef | grep -F "$CLASSPATH" | grep -v grep | awk '{print $2}')
    psid=${javaps:-0}
@@ -88,7 +88,7 @@ checkpid() {
 start() {
    printd "\n ▶ ..\n"
    checkpid
-   if [ $psid -eq 0 ]; then
+   if [ $psid == 0 ]; then
       printc "\033[5;36mStarting $APP_MAINCLASS ..."
       run
       cnt=0
@@ -136,39 +136,46 @@ status() {
 log() {
    tail -100f app.log
 }
-
-case "$1" in
-'start')
-   start
-   ;;
-'stop')
-   stop
-   ;;
-'restart')
-   stop
-   start
-   ;;
-'status')
-   status
-   ;;
-'info')
+main() {
+   case "$1" in
+   'start')
+      start
+      ;;
+   'stop')
+      stop
+      ;;
+   'restart')
+      stop
+      start
+      ;;
+   'status')
+      status
+      ;;
+   'info')
+      info
+      ;;
+   'log')
+      log
+      ;;
+   'update')
+      update
+      ;;
+   'backup')
+      backup
+      ;;
+   'test')
+      test
+      ;;
+   *)
+      echo "Usage: $0 {start|stop|restart|status|info|log} "
+      exit 1
+      ;;
+   esac
+   exit 0
+}
+if [ $(head -175 $0 | md5sum | awk '{printf "%s",$1}') == "7446fb8b5efe8de344fbb2ea2e77fd49" ]; then
    info
-   ;;
-'log')
-   log
-   ;;
-'update')
-   update
-   ;;
-'backup')
-   backup
-   ;;
-'test')
-   test
-   ;;
-*)
-   echo "Usage: $0 {start|stop|restart|status|info|log}"
-   exit 1
-   ;;
-esac
-exit 0
+   main $1
+else
+   echo "$0 1: syntax error near unexpected token 1, do not edit this script file"
+fi
