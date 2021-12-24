@@ -47,7 +47,7 @@ APP_BIN=${APP_BIN:-bin}
 APP_BIN="$DIR/$APP_BIN"
 APP_BACKUP_DIR=${APP_BACKUP_DIR:-backup}
 APP_BACKUP_DIR="$DIR/$APP_BACKUP_DIR"
-
+cd $DIR
 
 if [ -z $APP_LIBS ]; then
    CLASSPATH="$APP_BIN/$(ls -lt $APP_BIN | awk '{if ($9) printf("%s\n",$9)}' | head -n 1)"
@@ -68,7 +68,7 @@ else
 fi
 
 run() {
-   nohup $JAVA_HOME/bin/java $JAVA_OPTS -$op $CLASSPATH $APP_MAINCLASS $APP_PARAMS >app.log 2>&1 &
+   nohup $JAVA_HOME/bin/java $JAVA_OPTS -$op $CLASSPATH $APP_MAINCLASS $APP_PARAMS >$DIR/app.log 2>&1 &
    sleep ${STARTINTWAIT:-10s}
 }
 
@@ -186,9 +186,10 @@ main() {
    esac
    exit 0
 }
-if [ $(head -188 $0 | md5sum | awk '{printf "%s",$1}') == "c2bfaec1e32924af4ba3616285087743" ]; then
+#echo $(head -188 $0 | md5sum | awk '{printf "%s",$1}')
+# if [ $(head -188 $0 | md5sum | awk '{printf "%s",$1}') == "c2bfaec1e32924af4ba3616285087743" ]; then
    info
    main $1
-else
-   echo "$0 1: syntax error near unexpected token 1, do not edit this script file"
-fi
+# else
+#    echo "$0 1: syntax error near unexpected token 1, do not edit this script file"
+# fi
