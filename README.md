@@ -13,12 +13,20 @@ JAVA_HOME = /path/to/java/home
 JAVA_OPTS =      #~optional
 HOOK_STARTED   = #hook for started,like watch
 HOOK_STOPPED   = #hook for stopped,like watch
-APP_BIN            = #bin path
+APP_BIN            = #bin path default ./project/bin
 APP_BACKUP         = #backup path
 ```
 3. run
 ```sh
 ./run.sh restart
 #or 
-/path/to/run.sh restart /path/.env
+/path/to/run.sh restart /path/to/project
+```
+```asc
+.project
+|--  backup
+|--  bin
+|   `--   xxx.jar
+|--  config
+|--  logs
 ```

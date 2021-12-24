@@ -24,8 +24,13 @@ printc() { echo -e "${@:1}\033[0m"; }
 printd() { printc "\033[1;36m" "$(echo ${@:1})"; }
 xenv() { set -a && source "$ENV" && shift && "$@"; }
 if [ -n "$2" ]; then
-   ENV="$(readlink -f $2)"
-   DIR="$(dirname $(readlink -f $2))"
+   if [[ $2 == *".env" ]]; then
+       env_path=$2
+   else
+       env_path="$2/.env"
+   fi
+   ENV="$(readlink -f $env_path)"
+   DIR="$(dirname $(readlink -f $env_path))"
 else
    PWD="$0"
    while [ -h "$PWD" ]; do
@@ -43,9 +48,9 @@ APP_BIN="$DIR/$APP_BIN"
 APP_BACKUP_DIR=${APP_BACKUP_DIR:-backup}
 APP_BACKUP_DIR="$DIR/$APP_BACKUP_DIR"
 
-if [ -z $APP_MAINCLASS ]; then
+
+if [ -z $APP_LIBS ]; then
    CLASSPATH="$APP_BIN/$(ls -lt $APP_BIN | awk '{if ($9) printf("%s\n",$9)}' | head -n 1)"
-   op=jar
 else
    for i in $APP_LIBS/*.jar; do
       CLASSPATH="$CLASSPATH":$i
@@ -54,6 +59,11 @@ else
    for i in $DIR/bin/*.jar; do
       CLASSPATH="$CLASSPATH":$i
    done
+fi
+
+if [ -z $APP_MAINCLASS ]; then
+   op=jar
+else
    op=classpath
 fi
 
@@ -67,8 +77,9 @@ info() {
    printd "\n┌───────────────────────────────────────────────────┐\n"
    printd " ♨ [java-runner]: https://github.com/angviza/        ♨\n"
    printd "LOAD CONFIG 　: \033[1;33m $ENV"
-   printd "APP_HOME 　 　: \033[1;33m $DIR"
+   printd "APP_HOME　　　: \033[1;33m $DIR"
    printd "MAINCLASS 　　: \033[1;33m $APP_MAINCLASS"
+   printd "CLASSPATH　　 : \033[1;33m $CLASSPATH"
    printd "JAVA_HOME 　　: \033[1;33m $JAVA_HOME"
    printd "$(uname -a)"
    printd "\n└───────────$DATE───────────┘\n\n"
@@ -82,7 +93,6 @@ checkpid() {
    else
       printc "\033[1;31m✘\033[0m $APP_MAINCLASS is \033[1;31;36mnot running"
    fi
-   printc "\033[8;31m$psid"
 }
 
 start() {
@@ -138,6 +148,9 @@ log() {
 }
 main() {
    case "$1" in
+   'run')
+      run
+      ;;
    'start')
       start
       ;;
@@ -173,7 +186,7 @@ main() {
    esac
    exit 0
 }
-if [ $(head -175 $0 | md5sum | awk '{printf "%s",$1}') == "7446fb8b5efe8de344fbb2ea2e77fd49" ]; then
+if [ $(head -188 $0 | md5sum | awk '{printf "%s",$1}') == "c2bfaec1e32924af4ba3616285087743" ]; then
    info
    main $1
 else
