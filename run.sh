@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # java runner.©2013-2021 by Quinn.Zhang (angviza@gmail.com)
 #
 # [Github] https://github.com/angviza/
